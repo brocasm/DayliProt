@@ -13,14 +13,26 @@ var meal_selected;
 
 var meals = new Array();
 try {
-  meals = JSON.parse(conf.get_config("meals"));
-  for (var index in meals) {
-    if (meals[index].selected) {
-      meals[index].selected = false;
+  let t_meals = conf.get_config("meals");
+  t_meals = JSON.parse(t_meals);
+  if(t_meals.length > 0){
+    console.log(`pass 1 ${t_meals}`);
+    meals = t_meals;
+    for (var index in meals) {
+      if (meals[index].selected) {
+        meals[index].selected = false;
+      }
     }
+  }else{
+    meals = new Array();
+    resetMeals();
+    console.log("pass 2");
   }
-} catch (e) {
 
+} catch (e) {
+  meals = new Array();
+  resetMeals();
+    console.log("pass 3");
 }
 console.log("meals from config");
 console.log(meals.length);
@@ -42,7 +54,7 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-function resetMeals(){
+function resetMeals(generate = false){
   meals = new Array();
   meals[0] = {
   		  "label": "Petit Déj",
@@ -84,17 +96,19 @@ function resetMeals(){
         "selected": false,
         "entries":new Array()
   		};
-
-      for (var i = 0; i < meals.length; i++) {
-        var max = getRandomInt(15);
-        for (var x = 0; x < max; x++) {
-          var tmp_prot = getRandomInt(50);
-          var tmp_water = getRandomInt(3);
-          meals[i].entries[x] = {"prot":tmp_prot,"water":tmp_water,"name": meals[i].label+" " + x};
-          meals[i].water +=  tmp_water;
-          meals[i].prot +=  tmp_prot;
+      if(generate){
+        for (var i = 0; i < meals.length; i++) {
+          var max = getRandomInt(15);
+          for (var x = 0; x < max; x++) {
+            var tmp_prot = getRandomInt(50);
+            var tmp_water = getRandomInt(3);
+            meals[i].entries[x] = {"prot":tmp_prot,"water":tmp_water,"name": meals[i].label+" " + x};
+            meals[i].water +=  tmp_water;
+            meals[i].prot +=  tmp_prot;
+          }
         }
       }
+
       conf.save_config("meals",meals,true);
 }
 
@@ -138,10 +152,10 @@ it.maj_progress(water,prot);
 
 
 new Button({
-  centerX: true, bottom: 60+it.nav.toolbarHeight,height: 60,
+  centerX: true, bottom: 200,height: 60,
     text: 'Test'
   }).onSelect(() => {
-
+    conf.save_config("meals",null);
   }).appendTo(it.comp_bottom);
 
 function addToMeal(index,water,prot){
