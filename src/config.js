@@ -7,7 +7,6 @@ class cl_config {
       val = JSON.stringify(val);
     }
     localStorage.setItem(name, val);
-    console.log(localStorage.getItem(name));
   }
   get_config(name){
       return localStorage.getItem(name);

@@ -1,9 +1,15 @@
-const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput, ProgressBar } = require('tabris');
+const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput, ProgressBar,ActionSheet,ImageView } = require('tabris');
+
+var config = require("./config");
+var conf = config.conf;
 
 const inp_w = 55;
 const col_left_width = tabris.device.screenWidth / 2;//50%
 const left_cell_height = 70;
 const right_cell_height = 25;
+const col_height = 350;
+
+const color_meal_selected = "#369ae5";
 
 drawer.set({enabled: true});
 
@@ -22,25 +28,50 @@ class cl_interface {
     this.inp_prot = null;
     this.bt_save = null;
 
-    this.textView = new TextView({
-      centerX: true, top: 'prev() 50',
-      font: '24px'
-    }).appendTo(contentView);
-
 
     this.fn_onCellTap = null;
     this.fn_onDetailTap = null;
+    this.fn_onDetailRemove = null;
     this.fn_onSaveTap = null;
   }
   draw_interface(meals){
-    this.comp_left = new Composite({left: 0, top: 0, width: col_left_width, height: 350}).appendTo(contentView);
-  	this.comp_righ = new Composite({right: 0, top: 0, width: col_left_width, height: 350}).appendTo(contentView);
-    this.comp_bottom = new Composite({left: 0, top: 350, width: tabris.device.screenWidth}).appendTo(contentView);
+    this.comp_left = new Composite({left: 0, top: 0, width: col_left_width, height: col_height, background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(contentView);
+  	this.comp_righ = new Composite({right: 0, top: 0, width: col_left_width, height: col_height,background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(contentView);
+    this.comp_bottom = new Composite({left: 0, top: 350, width: tabris.device.screenWidth, height: tabris.device.screenHeight - col_height,background: 'linear-gradient(#FFFFFF,#D9D9D9)'}).appendTo(contentView);
+
+
+
 
     this.draw_right();
   	this.draw_left(meals);
   	this.draw_bottom();
-    this.draw_drawer();
+    this.draw_total();
+
+    this.dial_detail = new ActionSheet({
+      title: 'Que voulez-vous faire ?',
+      actions: [{title: 'Edit'}, {title: 'Supprimer', style: 'destructive'},{title: "Annuler", style:'cancel'}]
+    }).onSelect(({index}) => {
+      switch (index) {
+        case 0:
+          this.inp_prot.text = this.entries[this.details_selected].prot;
+          this.inp_water.text = this.entries[this.details_selected].water;
+          this.inp_label.text = this.entries[this.details_selected].name;
+          this.col_details.remove(this.details_selected)
+            if(this.fn_onDetailRemove != null){
+              this.fn_onDetailRemove(this.details_selected);
+            }
+          break;
+          case 1:
+            this.col_details.remove(this.details_selected)
+              if(this.fn_onDetailRemove != null){
+                this.fn_onDetailRemove(this.details_selected);
+              }
+            break;
+        default:
+
+      }
+    });
+
 
   }
   update_right(entries){
@@ -68,13 +99,23 @@ class cl_interface {
                 this.fn_onDetailTap(target,ev);
               }
              });
+             cell.onLongPress.once(({target}) =>{
+               if(this.fn_onDetailLPress != null){
+                this.fn_onDetailLPress(target);
+               }
+               this.details_selected = target.myData;
+
+               this.dial_detail.message = "élément choisi: " + this.entries[this.details_selected].name;
+               this.dial_detail.open();
+             });
             return cell;
           },
           updateCell: (cell, index) =>  {
 
           let entry = this.entries[index];
 
-          cell.id = "detail_ " + index;
+          cell.id = "detail_" + index;
+          cell.myData = index;
 
           var txt_label = entry.name + " p: "+entry.prot+"g, e: "+entry.water+"l";
           var txt_qty = "qty";
@@ -131,26 +172,34 @@ class cl_interface {
 
     			}).appendTo(cell);
           var txt_label = meal.label + " ("+meal.entries.length+")";
-          var txt_qty = "Prot: " + meal.prot + " gr, Eau: " + meal.water + " l";
+          var txt_qty = "" + meal.prot + " gr/" + meal.water + " l";
           var temp_color = "black";
 
           if(meal.selected === true){
             txt_label = "<b>" + txt_label + "</b>";
             txt_qty = "<b>" + txt_qty + "</b>";
-            temp_color = "red";
+            temp_color = color_meal_selected;
           }
+            new ImageView({
+              image: meal.img,
+              width: 50,
+              height: 50,
+              top: 12,
+              left: 12,
+              id: "img"
+            }).appendTo(cell);
     		    new TextView({
     				  id: "label",
-    				  centerX: true,
+    				  left: '#img 2',
     				  top:12,
-    				  font: '18px',
+    				  font: '16px',
     				  text: txt_label,
               textColor: temp_color,
               markupEnabled: true
     				}).appendTo(cell);
     			  new TextView({
     				  id: "prot_qty",
-    				  centerX: true,
+    				  right: 12,
     				  top: 'prev()',
     				  font: '14px',
               markupEnabled: true,
@@ -185,19 +234,15 @@ class cl_interface {
       this.bt_save = new Button({
   		left: 'prev() 5', top: 0,height: 60,width: 50,
   		  text: '+',
-        enabled: false
+        enabled: false,
+        id: "bt_save"
   		}).onSelect(() => {
         if(this.fn_onSaveTap != null){
           this.fn_onSaveTap();
         }
   		}).appendTo(this.comp_bottom);
 
-  	new Button({
-  		centerX: true, top: 100,height: 60,
-  		  text: 'Test'
-  		}).onSelect(() => {
-  		  drawer.open();
-  		}).appendTo(this.comp_bottom);
+
 
   }
   maj_progress(water= 0, prot= 0){
@@ -208,24 +253,24 @@ class cl_interface {
     this.lbl_water.text = this.prg_water.selection + "l";
 
   }
-  draw_drawer(){
-    new TextView({ left: 8, top: '0',text: 'Total Prot journalier'}).appendTo(drawer);
-    this.lbl_prot = new TextView({  top: '0',right: 16,text: 'Total Prot journalier'}).appendTo(drawer);
+  draw_total(){
+    new TextView({ left: 8, top: '#bt_save',text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
+    this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
     this.prg_prot = new ProgressBar({
       top: 'prev()',
       left: 16, right: 16,
       selection: 50,
       id: "prg_prot"
-    }).appendTo(drawer);
-    new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(drawer);
-    this.lbl_water = new TextView({  top: '#prg_prot',right: 16,text: 'Total Prot journalier'}).appendTo(drawer);
+    }).appendTo(this.comp_bottom);
+    new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(this.comp_bottom);
+    this.lbl_water = new TextView({  top: '#prg_prot',right: 16,text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
     this.prg_water = new ProgressBar({
       top: 'prev()',
       left: 16, right: 16,
       tintColor: "blue",
       selection: 50,
       id: "prg_water"
-    }).appendTo(drawer);
+    }).appendTo(this.comp_bottom);
 
   }
 

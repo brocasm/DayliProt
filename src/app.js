@@ -1,9 +1,12 @@
 const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput} = require('tabris');
 var interface = require("./interface");
-var config = require("./config");
-
 var it = interface.it;
+
+var config = require("./config");
 var conf = config.conf;
+
+
+
 
 
 var cell_selected;
@@ -12,7 +15,16 @@ var meal_selected;
 
 
 var meals = new Array();
-meals = JSON.parse(conf.get_config("meals"));
+try {
+  meals = JSON.parse(conf.get_config("meals"));
+  for (var index in meals) {
+    if (meals[index].selected) {
+      meals[index].selected = false;
+    }
+  }
+} catch (e) {
+
+}
 console.log("meals from config");
 console.log(meals.length);
 var water = 0;
@@ -38,6 +50,7 @@ function resetMeals(){
   meals[0] = {
   		  "label": "Petit Déj",
   		  "color": "#eeff00aa",
+        "img": "src/img/breakfast_64.png",
   		  "prot": 0,
   		  "water": 0,
         "selected": false,
@@ -46,6 +59,7 @@ function resetMeals(){
   meals[1] = {
   		  "label": "Encas 1",
   		  "color": "#a2ff00aa",
+        "img": "src/img/break_1_64.png",
   		  "prot": 0,
   		  "water": 0,
         "selected": false,
@@ -54,6 +68,7 @@ function resetMeals(){
   meals[2] = {
   		  "label": "Midi",
   		  "color": "#00ffe1aa",
+        "img": "src/img/diner_64.png",
   		  "prot": 0,
   		  "water": 0,
         "selected": false,
@@ -62,6 +77,7 @@ function resetMeals(){
   meals[3] = {
   		  "label": "Encas 2",
   		  "color": "#e600ffaa",
+        "img": "src/img/break_2_64.png",
   		  "prot": 0,
   		  "water": 0,
         "selected": false,
@@ -70,6 +86,7 @@ function resetMeals(){
   meals[4] = {
   		  "label": "Soir",
   		  "color": "#969296aa",
+        "img": "src/img/evening_64.png",
   		  "prot": 0,
   		  "water": 0,
         "selected": false,
@@ -94,7 +111,6 @@ function resetMeals(){
 
 
 it.fn_onCellTap  = function(target,ev){
-  it.textView.text = target.id;
   console.log("clique on : " + target.id);
 
 
@@ -112,10 +128,25 @@ it.fn_onSaveTap = function (){
   addToMeal(meal_selected,it.inp_water.text,it.inp_prot.text);
   it.resetForm();
 }
+it.fn_onDetailRemove = function(index){
+  meals[meal_selected].entries.splice(index,1);
+  calc_oneMeal(meal_selected);
+  save_meals();
+}
 
 it.draw_interface(meals);
 calcTotal();
 it.maj_progress(water,prot);
+
+
+new Button({
+  centerX: true, top: 100,height: 60,
+    text: 'Test'
+  }).onSelect(() => {
+    drawer.open();
+    resetMeals();
+    it.refreshListing();
+  }).appendTo(it.comp_bottom);
 
 function addToMeal(index,water,prot){
   var ret = true;
@@ -133,12 +164,14 @@ function addToMeal(index,water,prot){
   meals[index].prot += parseInt(prot);
   let entry = {"prot":prot,"water":water,"name":it.inp_label.text};
   meals[index].entries[meals[index].entries.length] = entry;
-  console.log(meals[index].entries);
-  it.refreshListing();
   it.update_right(meals[index].entries);
+  save_meals();
+}
+function save_meals(){
+  it.refreshListing();
   calcTotal();
-  this.maj_progress();
-  conf.save_config("meals",meals);
+  it.maj_progress(water,prot);
+  conf.save_config("meals",meals,true);
 }
 function resetCell(cell){
   it.bt_save.enabled = false;
@@ -153,7 +186,16 @@ function makeSelected(cell){
   it.update_right(meal.entries);
   it.refreshListing();
 }
-
+function calc_oneMeal(index){
+  var tmp_water = 0;
+  var tmp_prot = 0;
+  for (var x in meals[index].entries) {
+    tmp_water += parseInt(meals[index].entries[x].water);
+    tmp_prot += parseInt(meals[index].entries[x].prot);
+  }
+  meals[index].water = tmp_water;
+  meals[index].prot = tmp_prot;
+}
 function calcTotal(){
   water = 0;
   prot = 0;
@@ -161,4 +203,5 @@ function calcTotal(){
     water += parseInt(meals[index].water);
     prot += parseInt(meals[index].prot);
   }
+  console.log(`Water ${water} prot ${prot}`);
 }
