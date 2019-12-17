@@ -14,7 +14,8 @@ const col_height = 350;
 const raw_input_height = 60;
 
 const color_meal_selected = "#369ae5";
-const box_color = "#a1c2f7";
+const box_color = "#2129fa";
+const princ_color = "#2129fa";
 
 drawer.set({enabled: true});
 
@@ -49,7 +50,7 @@ class cl_interface {
     return this.pages[key];
   }
   draw_interface(meals){
-    this.nav = new NavigationView({layoutData: 'stretch',actionColor: "white"})
+    this.nav = new NavigationView({layoutData: 'stretch',actionColor: "white", toolbarColor: princ_color})
     .appendTo(contentView);
     this.nav.drawerActionVisible = true;
     console.log(this.nav.toolbarHeight);
@@ -329,6 +330,7 @@ class cl_interface {
   		left: 'prev() 5', top: 0,height: 60,width: 50,
   		  text: '+',
         enabled: false,
+        background: princ_color,
         id: "bt_save"
   		}).onSelect(() => {
         if(this.fn_onSaveTap != null){
@@ -361,6 +363,7 @@ class cl_interface {
       left: 16, right: 16,
       selection: 0,
       maximum: max_prot,
+      tintColor: "#faaf21",
       id: "prg_prot"
     }).appendTo(tmp_comp);
     new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(tmp_comp);
