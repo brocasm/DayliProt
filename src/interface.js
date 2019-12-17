@@ -1,15 +1,20 @@
-const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput, ProgressBar,ActionSheet,ImageView } = require('tabris');
+const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput, ProgressBar,ActionSheet,ImageView,NavigationView, Page,Action} = require('tabris');
 
 var config = require("./config");
 var conf = config.conf;
 
+var settings = require("./settings");
+settings = settings.settings;
+
 const inp_w = 55;
 const col_left_width = tabris.device.screenWidth / 2;//50%
 const left_cell_height = 70;
-const right_cell_height = 25;
+const right_cell_height = 45;
 const col_height = 350;
+const raw_input_height = 60;
 
 const color_meal_selected = "#369ae5";
+const box_color = "#a1c2f7";
 
 drawer.set({enabled: true});
 
@@ -32,19 +37,46 @@ class cl_interface {
     this.fn_onCellTap = null;
     this.fn_onDetailTap = null;
     this.fn_onDetailRemove = null;
+    this.fn_onMealReset = null;
     this.fn_onSaveTap = null;
+
+    this.pages = new Array();
+    this.conf = conf;
+
+  }
+  addPage(key,param){
+    this.pages[key] = new Page(param);
+    return this.pages[key];
   }
   draw_interface(meals){
-    this.comp_left = new Composite({left: 0, top: 0, width: col_left_width, height: col_height, background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(contentView);
-  	this.comp_righ = new Composite({right: 0, top: 0, width: col_left_width, height: col_height,background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(contentView);
-    this.comp_bottom = new Composite({left: 0, top: 350, width: tabris.device.screenWidth, height: tabris.device.screenHeight - col_height,background: 'linear-gradient(#FFFFFF,#D9D9D9)'}).appendTo(contentView);
+    this.nav = new NavigationView({layoutData: 'stretch',actionColor: "white"})
+    .appendTo(contentView);
+    this.nav.drawerActionVisible = true;
+    console.log(this.nav.toolbarHeight);
+
+    new Action({
+    title: 'Settings',
+    image: 'src/img/settings.png'
+  }).onSelect(() => {
+    this.nav.append(this.pages["p_settings"]);
+  })
+    .appendTo(this.nav);
+
+    settings.init(this);
+    settings.read_settings(this);
+
+    this.addPage("p_calc",{id: "p_calc",title: "Calculation",autoDispose: false});
+    this.comp_input = new Composite({id: "comp_input", left: 0, top: 0,width: tabris.device.screenWidth, height: raw_input_height, background: '#D9D9D9'}).appendTo(this.pages["p_calc"]);
+    this.comp_left = new Composite({left: 0, top: '#comp_input', width: col_left_width, height: col_height, background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(this.pages["p_calc"]);
+  	this.comp_righ = new Composite({right: 0, top: '#comp_input', width: col_left_width, height: col_height,background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(this.pages["p_calc"]);
+    this.comp_bottom = new Composite({left: 0, top: col_height + raw_input_height, width: tabris.device.screenWidth, height: tabris.device.screenHeight - col_height,background: 'linear-gradient(#FFFFFF,#D9D9D9)'}).appendTo(this.pages["p_calc"]);
 
 
 
 
     this.draw_right();
   	this.draw_left(meals);
-  	this.draw_bottom();
+  	this.draw_input();
     this.draw_total();
 
     this.dial_detail = new ActionSheet({
@@ -72,6 +104,29 @@ class cl_interface {
       }
     });
 
+    this.dial_meal = new ActionSheet({
+      title: 'Que voulez-vous faire ?',
+      actions: [{title: 'Vider', style: 'destructive'},{title: "Annuler", style:'cancel'}]
+    }).onSelect(({index}) => {
+      switch (index) {
+        case 0:
+        this.col_details.remove(0,this.col_details.itemCount);
+          if(this.fn_onMealReset != null){
+              this.fn_onMealReset(this.meal_selected);
+            }
+
+          break;
+          case 1:
+
+            break;
+        default:
+
+      }
+    });
+
+
+
+    this.nav.append(this.pages["p_calc"]);
 
   }
   update_right(entries){
@@ -117,14 +172,44 @@ class cl_interface {
           cell.id = "detail_" + index;
           cell.myData = index;
 
-          var txt_label = entry.name + " p: "+entry.prot+"g, e: "+entry.water+"l";
-          var txt_qty = "qty";
+          new Canvas({layoutData: 'stretch'})
+        .onResize(({target: canvas, width, height}) => {
+          const context = canvas.getContext('2d', width, height);
+          context.moveTo(0, 0);
+
+          const scaleFactor = tabris.device.scaleFactor;
+          const ctx = canvas.getContext('2d', col_left_width , height);
+          ctx.textBaseline = 'top';
+          ctx.textAlign = 'center';
+
+          ctx.fillStyle = box_color;
+          let x = 55;
+          let y = 5;
+          let border = 2;
+          ctx.fillRect(0, right_cell_height-border, col_left_width , border );
+        //  ctx.fillStyle = 'white';
+        //  ctx.fillRect(x+border, y+border, col_left_width-5-border*2, left_cell_height-5-border*2 );
+
+
+        }).appendTo(cell);
+
+          var txt_label = entry.name;
+          var txt_qty = ""+entry.prot+" g/"+entry.water+" l";
+            new TextView({
+              id: "label",
+              centerX: true,
+              top:'6',
+              font: '14px',
+              text: txt_label,
+              textColor: "black",
+              markupEnabled: true
+            }).appendTo(cell);
             new TextView({
               id: "label",
               centerX: true,
               top:'prev()',
-              font: '18px',
-              text: txt_label,
+              font: '12px',
+              text: txt_qty,
               textColor: "black",
               markupEnabled: true
             }).appendTo(cell);
@@ -145,12 +230,21 @@ class cl_interface {
                 this.fn_onCellTap(target,ev);
               }
              });
+             cell.onLongPress.once(({target}) =>{
+               if(this.fn_onMealLPress != null){
+                this.fn_onMealLPress(target);
+               }
+               this.meal_selected = target.myData;
+               this.dial_meal.message = "élément choisi: " + this.meals[this.meal_selected].label;
+               this.dial_meal.open();
+             });
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
     			let meal = meals[index];
 
           cell.id = "cell_ " + index;
+          cell.myData = index;
     		    new Canvas({layoutData: 'stretch'})
     			.onResize(({target: canvas, width, height}) => {
     			  const context = canvas.getContext('2d', width, height);
@@ -161,7 +255,7 @@ class cl_interface {
     			  ctx.textBaseline = 'top';
     			  ctx.textAlign = 'center';
 
-    			  ctx.fillStyle = meal.color;
+    			  ctx.fillStyle = box_color;
     			  let x = 5;
     			  let y = 5;
     			  let border = 5;
@@ -209,28 +303,28 @@ class cl_interface {
     		  }
     		}).appendTo(this.comp_left);
   }
-  draw_bottom(){
+  draw_input(){
     this.inp_prot = new TextInput({
       left: 'prev() 5',
       width: inp_w,
       keyboard: 'decimal',
       message: 'Prot'
       }).onInput(({text}) => console.log(`Text changed to ${text}`))
-        .appendTo(this.comp_bottom);
+        .appendTo(this.comp_input);
   	this.inp_water = new TextInput({
   		left: 'prev() 5',
   		width: inp_w,
       keyboard: 'decimal',
   		message: 'Eau'
   		}).onInput(({text}) => console.log(`Text changed to ${text}`))
-  		  .appendTo(this.comp_bottom);
+  		  .appendTo(this.comp_input);
 
       this.inp_label = new TextInput({
         left: 'prev() 5',
         width: 150,
         message: 'Dénomination'
         }).onInput(({text}) => console.log(`Text changed to ${text}`))
-          .appendTo(this.comp_bottom);
+          .appendTo(this.comp_input);
       this.bt_save = new Button({
   		left: 'prev() 5', top: 0,height: 60,width: 50,
   		  text: '+',
@@ -240,42 +334,51 @@ class cl_interface {
         if(this.fn_onSaveTap != null){
           this.fn_onSaveTap();
         }
-  		}).appendTo(this.comp_bottom);
+  		}).appendTo(this.comp_input);
 
 
 
   }
   maj_progress(water= 0, prot= 0){
     this.prg_prot.selection = parseInt(prot);
-    this.lbl_prot.text = this.prg_prot.selection + "g";
+    this.lbl_prot.text = prot + "g";
 
     this.prg_water.selection = parseInt(water);
-    this.lbl_water.text = this.prg_water.selection + "l";
+    this.lbl_water.text = water + "l";
 
   }
   draw_total(){
-    new TextView({ left: 8, top: '#bt_save',text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
-    this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
+    let tmp_comp = new Composite({left: 0, top: 'prev()', width: tabris.device.screenWidth}).appendTo(this.comp_bottom);
+    this.comp_tot = tmp_comp;
+
+    var max_prot = (settings.kg * settings.r_prot);
+    var max_water = (settings.kg * settings.r_water/1000);
+    console.log(`Max prot: ${max_prot} / max water: ${max_water}`);
+    new TextView({ left: 8, top: '#bt_save',text: 'Total Prot journalier'}).appendTo(tmp_comp);
+    this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(tmp_comp);
     this.prg_prot = new ProgressBar({
       top: 'prev()',
       left: 16, right: 16,
-      selection: 50,
+      selection: 0,
+      maximum: max_prot,
       id: "prg_prot"
-    }).appendTo(this.comp_bottom);
-    new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(this.comp_bottom);
-    this.lbl_water = new TextView({  top: '#prg_prot',right: 16,text: 'Total Prot journalier'}).appendTo(this.comp_bottom);
+    }).appendTo(tmp_comp);
+    new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(tmp_comp);
+    this.lbl_water = new TextView({  top: '#prg_prot',right: 16,text: 'Total Prot journalier'}).appendTo(tmp_comp);
     this.prg_water = new ProgressBar({
       top: 'prev()',
       left: 16, right: 16,
       tintColor: "blue",
-      selection: 50,
+      selection: 0,
+      maximum: max_water,
       id: "prg_water"
-    }).appendTo(this.comp_bottom);
+    }).appendTo(tmp_comp);
 
   }
 
   refreshListing(){
     this.col_list.refresh();
+
   }
   resetForm(){
     this.inp_label.text = null;
