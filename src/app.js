@@ -72,11 +72,12 @@ class cl_app {
     this.it.update_right({});
 
   }
+
   resetMeals(generate = false){
     this.a_days[this.day].meals = new Array();
     this.a_days[this.day].meals[0] = {
     		  "label": "Petit Déj",
-          "img": "src/img/breakfast_64.png",
+          "img": 0,
     		  "prot": 0,
     		  "water": 0,
           "selected": false,
@@ -84,7 +85,7 @@ class cl_app {
     		};
     this.a_days[this.day].meals[1] = {
     		  "label": "Encas 1",
-          "img": "src/img/break_1_64.png",
+          "img": 1,
     		  "prot": 0,
     		  "water": 0,
           "selected": false,
@@ -92,7 +93,7 @@ class cl_app {
     		};
     this.a_days[this.day].meals[2] = {
     		  "label": "Midi",
-          "img": "src/img/diner_64.png",
+          "img": 2,
     		  "prot": 0,
     		  "water": 0,
           "selected": false,
@@ -100,7 +101,7 @@ class cl_app {
     		};
     this.a_days[this.day].meals[3] = {
     		  "label": "Encas 2",
-          "img": "src/img/break_2_64.png",
+          "img": 3,
     		  "prot": 0,
     		  "water": 0,
           "selected": false,
@@ -108,7 +109,7 @@ class cl_app {
     		};
     this.a_days[this.day].meals[4] = {
     		  "label": "Soir",
-          "img": "src/img/evening_64.png",
+          "img": 4,
     		  "prot": 0,
     		  "water": 0,
           "selected": false,

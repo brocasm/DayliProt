@@ -32,6 +32,8 @@ const color_meal_selected = "#369ae5";
 const box_color = "#2129fa";
 const princ_color = "#2129fa";
 
+
+
 class cl_interface {
 
   constructor(){
@@ -60,12 +62,16 @@ class cl_interface {
     this.pages = new Array();
     this.conf = conf;
 
-    this.rfx = 1;
+    this.a_imgs = new Array();
+    this.a_imgs[0] = "src/img/breakfast.png";
+    this.a_imgs[1] = "src/img/break_1_64.png";
+    this.a_imgs[2] = "src/img/diner_64.png";
+    this.a_imgs[3] = "src/img/break_2_64.png";
+    this.a_imgs[4] = "src/img/evening_64.png";
 
   }
   init(app){
     this.app = app;
-    this.rfx = window.devicePixelRatio;
   }
   addPage(key,param){
     this.pages[key] = new Page(param);
@@ -310,12 +316,10 @@ class cl_interface {
             txt_qty = "<b>" + txt_qty + "</b>";
             temp_color = color_meal_selected;
           }
-          let t_size = 50 * this.rfx;
-          console.log(`rfx = ${this.rfx}`);
             new ImageView({
-              image: meal.img,
-              width: t_size,
-              height: t_size,
+              image: this.a_imgs[meal.img],
+              width: 50,
+              height: 50,
               top: 12,
               left: 12,
               id: "img"
@@ -455,7 +459,7 @@ class cl_interface {
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
-            console.log(`Pass refresh col_drawer ${index}`);
+
 
           cell.id = "cell_ " + index;
           cell.myData = a_d[index];
