@@ -259,8 +259,14 @@ new Button({
   centerX: true, bottom: 200,height: 60,
     text: 'Test'
   }).onSelect(() => {
-    conf.save_config("days",null);
+    app.it.col_drawer.refresh();
   }).appendTo(it.comp_bottom);
+  new Button({
+    left:"prev()", bottom: 200,height: 60,background: "red",
+      text: 'Reset'
+    }).onSelect(() => {
+      conf.save_config("days",null);
+    }).appendTo(it.comp_bottom);
 
 
 

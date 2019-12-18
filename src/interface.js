@@ -60,9 +60,12 @@ class cl_interface {
     this.pages = new Array();
     this.conf = conf;
 
+    this.rfx = 1;
+
   }
   init(app){
     this.app = app;
+    this.rfx = window.devicePixelRatio;
   }
   addPage(key,param){
     this.pages[key] = new Page(param);
@@ -307,10 +310,12 @@ class cl_interface {
             txt_qty = "<b>" + txt_qty + "</b>";
             temp_color = color_meal_selected;
           }
+          let t_size = 50 * this.rfx;
+          console.log(`rfx = ${this.rfx}`);
             new ImageView({
               image: meal.img,
-              width: 50,
-              height: 50,
+              width: t_size,
+              height: t_size,
               top: 12,
               left: 12,
               id: "img"
@@ -450,11 +455,11 @@ class cl_interface {
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
-            console.log(`Pass refresh col_draer ${index}`);
+            console.log(`Pass refresh col_drawer ${index}`);
 
           cell.id = "cell_ " + index;
           cell.myData = a_d[index];
-          let txt = this.format_date(a_d[index]);
+          let txt = this.format_date(a_d[index]) + "_" + index;
           let id = this.app.generate_date_ID(a_d[index]);
           let top = `#${index-1}_prg_water 6`;
 
