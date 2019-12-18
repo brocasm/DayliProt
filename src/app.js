@@ -5,6 +5,8 @@ var it = t_interface.it;
 var config = require("./config");
 var conf = config.conf;
 
+const s_version = "v0.3.2";
+
 
 class cl_app {
   constructor() {
@@ -21,6 +23,7 @@ class cl_app {
 
   }
   init(){
+    this.version = s_version;
     this.a_days = {};
     var d = new Date();
     this.day = this.generate_date_ID(d);

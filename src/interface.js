@@ -506,7 +506,7 @@ class cl_interface {
     		  }
     		}).appendTo(drawer);
 
-        new TextView({left: 8, bottom: 0,text: "v0.3.1",markupEnabled: true,font: '16px',textColor: "black"}).appendTo(drawer);
+        new TextView({left: 8, bottom: 0,text: this.app.version,markupEnabled: true,font: '16px',textColor: "black"}).appendTo(drawer);
 
     for (var index in a_d) {
 
