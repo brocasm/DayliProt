@@ -11,6 +11,9 @@ class cl_app {
     this.cell_selected = null;
     this.meal_selected = null;
 
+    this.max_prot = 0;
+    this.max_water = 0;
+
 
 
 

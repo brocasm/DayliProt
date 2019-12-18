@@ -374,10 +374,10 @@ class cl_interface {
 
   }
   maj_progress(water= 0, prot= 0){
-    this.prg_prot.selection = parseInt(prot);
+    this.prg_prot.selection = parseInt((prot/this.app.max_prot)*100);
     this.lbl_prot.text = prot + "g";
 
-    this.prg_water.selection = parseInt(water);
+    this.prg_water.selection = parseInt((water/this.app.max_water)*100);
     this.lbl_water.text = water + "l";
 
   }
@@ -385,16 +385,16 @@ class cl_interface {
     let tmp_comp = new Composite({left: 0, top: 'prev()', width: tabris.device.screenWidth}).appendTo(this.comp_bottom);
     this.comp_tot = tmp_comp;
 
-    var max_prot = (settings.kg * settings.r_prot);
-    var max_water = (settings.kg * settings.r_water/1000);
-    console.log(`Max prot: ${max_prot} / max water: ${max_water}`);
+    this.app.max_prot = (settings.kg * settings.r_prot);
+    this.app.max_water = (settings.kg * settings.r_water/1000);
+    console.log(`Max prot: ${this.app.max_prot} / max water: ${this.app.max_water}`);
     new TextView({ left: 8, top: '#bt_save',text: 'Total Prot journalier'}).appendTo(tmp_comp);
     this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(tmp_comp);
     this.prg_prot = new ProgressBar({
       top: 'prev()',
       left: 16, right: 16,
       selection: 0,
-      maximum: max_prot,
+      maximum: 100,
       tintColor: "#faaf21",
       id: "prg_prot"
     }).appendTo(tmp_comp);
@@ -405,7 +405,7 @@ class cl_interface {
       left: 16, right: 16,
       tintColor: "blue",
       selection: 0,
-      maximum: max_water,
+      maximum: 100,
       id: "prg_water"
     }).appendTo(tmp_comp);
 
