@@ -1,4 +1,19 @@
-const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput, ProgressBar,ActionSheet,ImageView,NavigationView, Page,Action} = require('tabris');
+const {Button,
+   TextView,
+   contentView,
+   Canvas,
+   Device,
+   Composite,
+   drawer,
+   CollectionView,
+   TextInput,
+   ProgressBar,
+   ActionSheet,
+   ImageView,
+   NavigationView,
+   Page,
+   Action,
+   DateDialog} = require('tabris');
 
 var config = require("./config");
 var conf = config.conf;
@@ -40,33 +55,50 @@ class cl_interface {
     this.fn_onDetailRemove = null;
     this.fn_onMealReset = null;
     this.fn_onSaveTap = null;
+    this.fn_onChangeDate = null;
 
     this.pages = new Array();
     this.conf = conf;
 
   }
+  init(app){
+    this.app = app;
+  }
   addPage(key,param){
     this.pages[key] = new Page(param);
     return this.pages[key];
   }
-  draw_interface(meals){
+  draw_interface(){
     this.nav = new NavigationView({layoutData: 'stretch',actionColor: "white", toolbarColor: princ_color})
     .appendTo(contentView);
     this.nav.drawerActionVisible = true;
     console.log(this.nav.toolbarHeight);
+//Date picker
+    let dial_date =
+    new Action({
+      title: 'Agenda',
+      image: 'src/img/calendar.png'
+    }).onSelect(() => {
+      new DateDialog().onSelect(({date}) => {
+        if(this.fn_onChangeDate != null){
+          this.fn_onChangeDate(date);
+        }
+      }).open();
+    }).appendTo(this.nav);
+
 
     new Action({
-    title: 'Settings',
-    image: 'src/img/settings.png'
-  }).onSelect(() => {
-    this.nav.append(this.pages["p_settings"]);
-  })
-    .appendTo(this.nav);
+      title: 'Settings',
+      image: 'src/img/settings.png'
+    }).onSelect(() => {
+      this.nav.append(this.pages["p_settings"]);
+    }).appendTo(this.nav);
+
 
     settings.init(this);
     settings.read_settings(this);
 
-    this.addPage("p_calc",{id: "p_calc",title: "Calculation",autoDispose: false});
+    this.addPage("p_calc",{id: "p_calc",title: "Aujourd'hui",autoDispose: false});
     this.comp_input = new Composite({id: "comp_input", left: 0, top: 0,width: tabris.device.screenWidth, height: raw_input_height, background: '#D9D9D9'}).appendTo(this.pages["p_calc"]);
     this.comp_left = new Composite({left: 0, top: '#comp_input', width: col_left_width, height: col_height, background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(this.pages["p_calc"]);
   	this.comp_righ = new Composite({right: 0, top: '#comp_input', width: col_left_width, height: col_height,background: 'linear-gradient(#D9D9D9, #FFFFFF)'}).appendTo(this.pages["p_calc"]);
@@ -76,7 +108,7 @@ class cl_interface {
 
 
     this.draw_right();
-  	this.draw_left(meals);
+  	this.draw_left();
   	this.draw_input();
     this.draw_total();
 
@@ -218,11 +250,11 @@ class cl_interface {
           }
         }).appendTo(this.comp_righ);
   }
-  draw_left(meals){
+  draw_left(){
     this.col_list = 	new CollectionView({
     		  left: 0, top: 0, right: 0, bottom: 0,
     		  cellHeight: left_cell_height,
-    		  itemCount: meals.length,
+    		  itemCount: this.app.a_days[this.app.day].meals.length,
     		  createCell: () => {
     			  let cell = new Composite();
 
@@ -236,13 +268,13 @@ class cl_interface {
                 this.fn_onMealLPress(target);
                }
                this.meal_selected = target.myData;
-               this.dial_meal.message = "élément choisi: " + this.meals[this.meal_selected].label;
+               this.dial_meal.message = "élément choisi: " + this.app.a_days[this.app.day].meals[this.app.meal_selected].label;
                this.dial_meal.open();
              });
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
-    			let meal = meals[index];
+    			let meal = this.app.a_days[this.app.day].meals[index];
 
           cell.id = "cell_ " + index;
           cell.myData = index;
@@ -381,6 +413,7 @@ class cl_interface {
 
   refreshListing(){
     this.col_list.refresh();
+    this.col_details.refresh();
 
   }
   resetForm(){
