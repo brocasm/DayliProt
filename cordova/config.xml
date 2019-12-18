@@ -9,6 +9,7 @@
   </author>
   <icon src="res/icon.png" />
   <preference name="EnableDeveloperConsole" value="$IS_DEBUG" />
+  <access origin="*" />
   <platform name="android">
        <!--
            ldpi    : 36x36 px
