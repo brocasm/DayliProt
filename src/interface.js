@@ -32,11 +32,11 @@ const color_meal_selected = "#369ae5";
 const box_color = "#2129fa";
 const princ_color = "#2129fa";
 
-drawer.set({enabled: true});
-
 class cl_interface {
 
   constructor(){
+
+
 
     this.comp_left = null;
     this.comp_righ = null;
@@ -411,6 +411,119 @@ class cl_interface {
 
   }
 
+  format_date(date){
+    return date.getDate() + "."+parseInt(date.getMonth()+1) +"."+ date.getFullYear();
+  }
+
+  draw_drawer(drawer){
+    let a_d = new Array();
+    var o_all = new Array();
+
+    a_d[0] = new Date();
+    for (var i = 1; i <= 6; i++) {
+      a_d[i] = new Date();
+      a_d[i].setDate(a_d[i-1].getDate() - 1);
+    }
+
+    let spacer = "";
+    let t_str = "";
+    for (var i = 0; i < 10; i++) {
+      spacer += "*";
+      t_str += " ";
+    }
+    spacer = spacer + t_str + spacer + t_str + spacer;
+
+    let col_drawer = new CollectionView({
+    		  left: 0, top: 0, right: 0,
+    		  //cellHeight: left_cell_height,
+          height: 500,
+    		  itemCount: a_d.length,
+    		  createCell: () => {
+    			  let cell = new Composite();
+
+            cell.onTap(({target,ev}) => {
+
+
+             });
+    			  return cell;
+    		  },
+    		  updateCell: (cell, index) =>  {
+
+          cell.id = "cell_ " + index;
+          let txt = this.format_date(a_d[index]);
+          let id = this.app.generate_date_ID(a_d[index]);
+          let top = `#${index-1}_prg_water 6`;
+
+          if(this.app.a_days[id] != null){
+            o_all[id] = {"lbl_prot":null,"lbl_water":null,"p_prot":null,"p_water":null};
+
+            if(index == 0){
+              txt = "<b>" + txt + "</b>";
+              top = `prev() 6`;
+            }
+
+            new TextView({id:"lbl_"+id, left: 8, top: top,text: txt,markupEnabled: true,font: '16px',textColor: "black"}).appendTo(cell);
+
+            //new TextView({ left: 8, top: `#lbl_${id} 6`,text: 'Total Prot journalier'}).appendTo(cell);
+            o_all[id].lbl_prot =  new TextView({  top: `#lbl_${id} 6`,left: 6,text: this.app.a_days[id].prot}).appendTo(cell);
+
+            let val_prot = parseInt((this.app.a_days[id].prot/this.app.max_prot)*100);
+            o_all[id].p_prot = new ProgressBar({
+              top: `#lbl_${id} 6`,
+              left: 36, right: 16,
+              selection: val_prot,
+              maximum: 100,
+              tintColor: "#faaf21",
+              id: index + "_prg_prot"
+            }).appendTo(cell);
+
+            //new TextView({ left: 8, top: `#${index}_prg_prot 6`,text: 'Total Eau journalier'}).appendTo(cell);
+            o_all[id].lbl_prot =  new TextView({  top: `#${index}_prg_prot 6`,left: 6,text: this.app.a_days[id].water}).appendTo(cell);
+
+            let val_water = parseInt((this.app.a_days[id].water/this.app.max_water)*100);
+            o_all[id].p_prot = new ProgressBar({
+              top: `#${index}_prg_prot 6`,
+              left: 36, right: 16,
+              selection: val_water,
+              maximum: 100,
+              tintColor: "blue",
+              id: index + "_prg_water"
+            }).appendTo(cell);
+            new TextView({ left: 8,right: 8, top: `prev() 6`,text: spacer}).appendTo(cell)
+          }
+
+
+
+    		  }
+    		}).appendTo(drawer);
+
+    for (var index in a_d) {
+
+    }
+
+/*
+    new TextView({ left: 8, top: 'prev() 6',text: 'Total Prot journalier'}).appendTo(drawer);
+    this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(drawer);
+    this.prg_prot = new ProgressBar({
+      top: 'prev()',
+      left: 16, right: 16,
+      selection: 0,
+      maximum: 100,
+      tintColor: "#faaf21",
+      id: "prg_prot"
+    }).appendTo(drawer);
+    new TextView({left: 8,  top: '#prg_prot',text: 'Total Eau journalier'}).appendTo(drawer);
+    this.lbl_water = new TextView({  top: '#prg_prot',right: 16,text: 'Total Prot journalier'}).appendTo(drawer);
+    this.prg_water = new ProgressBar({
+      top: 'prev()',
+      left: 16, right: 16,
+      tintColor: "blue",
+      selection: 0,
+      maximum: 100,
+      id: "prg_water"
+    }).appendTo(drawer);*/
+  }
+
   refreshListing(){
     this.col_list.refresh();
     this.col_details.refresh();
@@ -433,7 +546,9 @@ class cl_interface {
  }
 }
 
-exports.it = new cl_interface();
+let it = new cl_interface();
+exports.it = it;
+
 /*
 
 

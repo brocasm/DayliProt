@@ -1,4 +1,4 @@
-const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput} = require('tabris');
+const {Button, TextView, contentView, Canvas, Device, drawer, Composite, CollectionView, TextInput} = require('tabris');
 var t_interface = require("./interface");
 var it = t_interface.it;
 
@@ -23,7 +23,7 @@ class cl_app {
   init(){
     this.a_days = {};
     var d = new Date();
-    this.day ="d_"+ d.getFullYear()+d.getMonth()+d.getDate();
+    this.day = this.generate_date_ID(d);
     let t_days = this.conf.get_config("days");
     try {
       this.a_days = JSON.parse(t_days);
@@ -48,9 +48,12 @@ class cl_app {
       }
     }
   }
+  generate_date_ID(date){
+    return "d_"+ date.getFullYear()+date.getMonth()+date.getDate();
+  }
   changeDate(date){
-    this.day ="d_"+ date.getFullYear()+date.getMonth()+date.getDate();
-    let str_date = date.getDate() + "."+parseInt(date.getMonth()+1) +"."+ date.getFullYear();
+    this.day = this.generate_date_ID(date);
+    let str_date = this.it.format_date(date);
     console.log(`Nouvelle date choisi: ${this.day}`);
 
     if(this.a_days[this.day] == null){
@@ -192,6 +195,8 @@ app.conf = conf;
 app.init();
 
 it.init(app);
+drawer.set({enabled: true});
+it.draw_drawer(drawer);
 
 
 /*let meals = [
