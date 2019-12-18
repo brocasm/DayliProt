@@ -380,6 +380,8 @@ class cl_interface {
     this.prg_water.selection = parseInt((water/this.app.max_water)*100);
     this.lbl_water.text = water + "l";
 
+    this.col_drawer.refresh();
+
   }
   draw_total(){
     let tmp_comp = new Composite({left: 0, top: 'prev()', width: tabris.device.screenWidth}).appendTo(this.comp_bottom);
@@ -433,7 +435,7 @@ class cl_interface {
     }
     spacer = spacer + t_str + spacer + t_str + spacer;
 
-    let col_drawer = new CollectionView({
+    this.col_drawer = new CollectionView({
     		  left: 0, top: 0, right: 0,
     		  //cellHeight: left_cell_height,
           height: 500,
@@ -442,14 +444,16 @@ class cl_interface {
     			  let cell = new Composite();
 
             cell.onTap(({target,ev}) => {
-
-
+              this.app.changeDate(target.myData);
+              drawer.close();
              });
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
+            console.log(`Pass refresh col_draer ${index}`);
 
           cell.id = "cell_ " + index;
+          cell.myData = a_d[index];
           let txt = this.format_date(a_d[index]);
           let id = this.app.generate_date_ID(a_d[index]);
           let top = `#${index-1}_prg_water 6`;

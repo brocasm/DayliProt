@@ -7,9 +7,11 @@ class cl_settings {
     this.r_prot = 1;
     this.r_water = 30;
 
+    this.nb_historique = 31;
+
   }
   save_settings(){
-    var val = {"kg": this.kg, "r_prot": this.r_prot, "r_water": this.r_water};
+    var val = {"kg": this.kg, "r_prot": this.r_prot, "r_water": this.r_water, "nb_historique": this.nb_historique};
     this.interface.conf.save_config("settings",val, true);
     console.log("save settings");
     console.log(this.interface.conf.get_config("settings"));
@@ -25,6 +27,7 @@ class cl_settings {
         this.kg = values.kg;
         this.r_prot = values.r_prot;
         this.r_water = values.r_water;
+        this.nb_historique = values.nb_historique;
       }
 
     }catch (e){
@@ -79,6 +82,15 @@ class cl_settings {
           text: this.r_water
         }).onInput(({text}) => {this.r_water = text})
           .appendTo(this.comp_princ);
+          this.inp_nb_historique = new TextInput({
+            top: 'prev() 12',
+            left: 5,
+            width: tabris.device.screenWidth - 50,
+            keyboard: 'number',
+            message: 'Nb historique conservés',
+            text: this.nb_historique
+          }).onInput(({text}) => {this.nb_historique = text})
+            .appendTo(this.comp_princ);
   }
 }
 
