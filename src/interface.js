@@ -64,10 +64,10 @@ class cl_interface {
 
     this.a_imgs = new Array();
     this.a_imgs[0] = "src/img/breakfast.png";
-    this.a_imgs[1] = "src/img/break_1_64.png";
-    this.a_imgs[2] = "src/img/diner_64.png";
-    this.a_imgs[3] = "src/img/break_2_64.png";
-    this.a_imgs[4] = "src/img/evening_64.png";
+    this.a_imgs[1] = "src/img/cereals.png";
+    this.a_imgs[2] = "src/img/clock.png";
+    this.a_imgs[3] = "src/img/muffin.png";
+    this.a_imgs[4] = "src/img/clock_s.png";
 
   }
   init(app){
