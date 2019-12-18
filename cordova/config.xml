@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="resku.dayliprot" version="0.1.1">
+<widget id="resku.dayliprot" version="0.2.0">
   <name>DayliProt</name>
   <description>
-    Example Tabris.js App
+  Calculatrice de consomation de protéïne journalière
   </description>
-  <author email="brocasm@resk-u.ch">
-    brocasm
+  <author email="administration@resk-u.ch">
+    Resk-U
   </author>
   <preference name="EnableDeveloperConsole" value="$IS_DEBUG" />
 </widget>
