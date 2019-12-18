@@ -1,6 +1,6 @@
 const {Button, TextView, contentView, Canvas, Device, Composite, drawer, CollectionView, TextInput} = require('tabris');
-var interface = require("./interface");
-var it = interface.it;
+var t_interface = require("./interface");
+var it = t_interface.it;
 
 var config = require("./config");
 var conf = config.conf;
