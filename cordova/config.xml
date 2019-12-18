@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="resku.dayliprot" version="0.2.0">
+<widget id="resku.dayliprot" version="0.2.1">
   <name>DayliProt</name>
   <description>
   Calculatrice de consomation de protéïne journalière
@@ -7,5 +7,5 @@
   <author email="administration@resk-u.ch">
     Resk-U
   </author>
-  <preference name="EnableDeveloperConsole" value="$IS_DEBUG" />    
+  <preference name="EnableDeveloperConsole" value="$IS_DEBUG" />
 </widget>
