@@ -9,20 +9,20 @@ class cl_settings {
 
     this.nb_historique = 31;
 
+    this.conf = null;
+
   }
   save_settings(){
     var val = {"kg": this.kg, "r_prot": this.r_prot, "r_water": this.r_water, "nb_historique": this.nb_historique};
-    this.interface.conf.save_config("settings",val, true);
+    this.conf.save_config("settings",val, true);
     console.log("save settings");
-    console.log(this.interface.conf.get_config("settings"));
+    console.log(this.conf.get_config("settings"));
   }
-  read_settings(it= null){
-    if(it != null){
-      this.interface = it;
-    }
+  read_settings(){
+
     try {
-      if(this.interface.conf.get_config("settings") != null){
-        var values = JSON.parse(this.interface.conf.get_config("settings"));
+      if(this.conf.get_config("settings") != null){
+        var values = JSON.parse(this.conf.get_config("settings"));
 
         this.kg = values.kg;
         this.r_prot = values.r_prot;
@@ -36,7 +36,6 @@ class cl_settings {
   }
   init(it){
     this.interface = it;
-
     this.read_settings();
 
     this.page = this.interface.addPage("p_settings",{id: "p_settings",title: "Paramétrage",autoDispose: false});

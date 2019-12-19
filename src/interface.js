@@ -15,12 +15,6 @@ const {Button,
    Action,
    DateDialog} = require('tabris');
 
-var config = require("./config");
-var conf = config.conf;
-
-var settings = require("./settings");
-settings = settings.settings;
-
 const inp_w = 55;
 const col_left_width = tabris.device.screenWidth / 2;//50%
 const left_cell_height = 70;
@@ -60,7 +54,6 @@ class cl_interface {
     this.fn_onChangeDate = null;
 
     this.pages = new Array();
-    this.conf = conf;
 
     this.a_imgs = new Array();
     this.a_imgs[0] = "src/img/breakfast.png";
@@ -72,6 +65,7 @@ class cl_interface {
   }
   init(app){
     this.app = app;
+    this.conf = this.app.conf;
   }
   addPage(key,param){
     this.pages[key] = new Page(param);
@@ -81,7 +75,6 @@ class cl_interface {
     this.nav = new NavigationView({layoutData: 'stretch',actionColor: "white", toolbarColor: princ_color})
     .appendTo(contentView);
     this.nav.drawerActionVisible = true;
-    console.log(this.nav.toolbarHeight);
 //Date picker
     let dial_date =
     new Action({
@@ -103,9 +96,6 @@ class cl_interface {
       this.nav.append(this.pages["p_settings"]);
     }).appendTo(this.nav);
 
-
-    settings.init(this);
-    settings.read_settings(this);
 
     this.addPage("p_calc",{id: "p_calc",title: "Aujourd'hui",autoDispose: false});
     this.comp_input = new Composite({id: "comp_input", left: 0, top: 0,width: tabris.device.screenWidth, height: raw_input_height, background: '#D9D9D9'}).appendTo(this.pages["p_calc"]);
@@ -396,8 +386,8 @@ class cl_interface {
     let tmp_comp = new Composite({left: 0, top: 'prev()', width: tabris.device.screenWidth}).appendTo(this.comp_bottom);
     this.comp_tot = tmp_comp;
 
-    this.app.max_prot = (settings.kg * settings.r_prot);
-    this.app.max_water = (settings.kg * settings.r_water/1000);
+    this.app.max_prot = (this.app.settings.kg * this.app.settings.r_prot);
+    this.app.max_water = (this.app.settings.kg * this.app.settings.r_water/1000);
     console.log(`Max prot: ${this.app.max_prot} / max water: ${this.app.max_water}`);
     new TextView({ left: 8, top: '#bt_save',text: 'Total Prot journalier'}).appendTo(tmp_comp);
     this.lbl_prot = new TextView({  top: '#bt_save',right: 16,text: 'Total Prot journalier'}).appendTo(tmp_comp);
@@ -463,7 +453,7 @@ class cl_interface {
 
           cell.id = "cell_ " + index;
           cell.myData = a_d[index];
-          let txt = this.format_date(a_d[index]) + "_" + index;
+          let txt = this.format_date(a_d[index]);
           let id = this.app.generate_date_ID(a_d[index]);
           let top = `#${index-1}_prg_water 6`;
 
@@ -474,6 +464,7 @@ class cl_interface {
               txt = "<b>" + txt + "</b>";
               top = `prev() 6`;
             }
+            
 
             new TextView({id:"lbl_"+id, left: 8, top: top,text: txt,markupEnabled: true,font: '16px',textColor: "black"}).appendTo(cell);
 
@@ -559,6 +550,17 @@ class cl_interface {
    );
 
  }
+  resetCell(cell){
+    this.bt_save.enabled = false;
+    let meal = this.app.a_days[this.app.day].meals[this.app.meal_selected];
+    this.refreshListing();
+  }
+  makeSelected(cell){
+    this.bt_save.enabled = true;
+    let meal = this.app.a_days[this.app.day].meals[this.app.meal_selected];
+    this.update_right(meal.entries);
+    this.refreshListing();
+  }
 }
 
 let it = new cl_interface();
