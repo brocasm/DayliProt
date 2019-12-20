@@ -421,7 +421,7 @@ class cl_interface {
     var o_all = new Array();
 
     a_d[0] = new Date();
-    for (var i = 1; i <= 6; i++) {
+    for (var i = 1; i < 6; i++) {
       a_d[i] = new Date();
       a_d[i].setDate(a_d[i-1].getDate() - 1);
     }
@@ -433,7 +433,7 @@ class cl_interface {
       t_str += " ";
     }
     spacer = spacer + t_str + spacer + t_str + spacer;
-
+    console.log(`Débug drawer itemCount: ${a_d.length}`);
     this.col_drawer = new CollectionView({
     		  left: 0, top: 0, right: 0,
     		  //cellHeight: left_cell_height,
@@ -441,21 +441,46 @@ class cl_interface {
     		  itemCount: a_d.length,
     		  createCell: () => {
     			  let cell = new Composite();
+            let top = `#${index-1}_prg_water 6`;
 
             cell.onTap(({target,ev}) => {
               this.app.changeDate(target.myData);
               drawer.close();
              });
+
+            new TextView({id:"lbl_date", left: 8, top: `prev() 6`,text: "ici",markupEnabled: true,font: '16px',textColor: "black"}).appendTo(cell);
+            new TextView({id:"lbl_prot",  top: `#lbl_date 6`,left: 6,text: "x"}).appendTo(cell);
+            new ProgressBar({
+              id: "prg_prot",
+              top: `#lbl_date 6`,
+              left: 36, right: 16,
+              selection: 0,
+              maximum: 100,
+              tintColor: "#faaf21"
+            }).appendTo(cell);
+            new TextView({id:"lbl_water", top: `#prg_prot 6`,left: 6,text:"y" }).appendTo(cell);
+            new ProgressBar({
+              top: `#prg_prot 6`,
+              left: 36, right: 16,
+              selection: 0,
+              maximum: 100,
+              tintColor: "blue",
+              id:"prg_water"
+            }).appendTo(cell);
+
+            new TextView({id:"lbl_spacer", left: 8,right: 8, top: `prev() 6`,text: ""}).appendTo(cell)
+
     			  return cell;
     		  },
     		  updateCell: (cell, index) =>  {
+            console.log(`UpdateCell ${index}`);
+            //console.log(o_all);
 
-
-          cell.id = "cell_ " + index;
-          cell.myData = a_d[index];
-          let txt = this.format_date(a_d[index]);
-          let id = this.app.generate_date_ID(a_d[index]);
-          let top = `#${index-1}_prg_water 6`;
+            cell.id = "cell_ " + index;
+            cell.myData = a_d[index];
+            let txt = this.format_date(a_d[index]);
+            let id = this.app.generate_date_ID(a_d[index]);
+            let top = `#${index-1}_prg_water 6`;
 
           if(this.app.a_days[id] != null){
             o_all[id] = {"lbl_prot":null,"lbl_water":null,"p_prot":null,"p_water":null};
@@ -464,39 +489,19 @@ class cl_interface {
               txt = "<b>" + txt + "</b>";
               top = `prev() 6`;
             }
-            
-
-            new TextView({id:"lbl_"+id, left: 8, top: top,text: txt,markupEnabled: true,font: '16px',textColor: "black"}).appendTo(cell);
-
-            //new TextView({ left: 8, top: `#lbl_${id} 6`,text: 'Total Prot journalier'}).appendTo(cell);
-            o_all[id].lbl_prot =  new TextView({  top: `#lbl_${id} 6`,left: 6,text: this.app.a_days[id].prot}).appendTo(cell);
-
             let val_prot = parseInt((this.app.a_days[id].prot/this.app.max_prot)*100);
-            o_all[id].p_prot = new ProgressBar({
-              top: `#lbl_${id} 6`,
-              left: 36, right: 16,
-              selection: val_prot,
-              maximum: 100,
-              tintColor: "#faaf21",
-              id: index + "_prg_prot"
-            }).appendTo(cell);
-
-            //new TextView({ left: 8, top: `#${index}_prg_prot 6`,text: 'Total Eau journalier'}).appendTo(cell);
-            o_all[id].lbl_prot =  new TextView({  top: `#${index}_prg_prot 6`,left: 6,text: this.app.a_days[id].water}).appendTo(cell);
-
             let val_water = parseInt((this.app.a_days[id].water/this.app.max_water)*100);
-            o_all[id].p_prot = new ProgressBar({
-              top: `#${index}_prg_prot 6`,
-              left: 36, right: 16,
-              selection: val_water,
-              maximum: 100,
-              tintColor: "blue",
-              id: index + "_prg_water"
-            }).appendTo(cell);
-            new TextView({ left: 8,right: 8, top: `prev() 6`,text: spacer}).appendTo(cell)
+            cell.apply({
+              "#lbl_date": {text: txt,top: top},
+              "#lbl_prot": {text: this.app.a_days[id].prot},
+              "#prg_prot": {selection: val_prot},
+              "#lbl_water": {text: this.app.a_days[id].water},
+              "#prg_water": {selection: val_water},
+              "#lbl_spacer": {text: spacer}
+            });
+
+
           }
-
-
 
     		  }
     		}).appendTo(drawer);

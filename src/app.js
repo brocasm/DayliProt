@@ -13,6 +13,7 @@ var settings = require("./settings");
 settings = settings.settings;
 
 const s_version = "v0.4.1";
+const debug_mode = true;
 
 app.it = it;
 app.conf = conf;
@@ -69,22 +70,26 @@ it.draw_drawer(drawer);
 it.maj_progress(app.a_days[app.day].water,app.a_days[app.day].prot);
 
 
+if(debug_mode){
 
 
-new Button({
-  centerX: true, bottom: 200,height: 60,
-    text: 'Test'
-  }).onSelect(() => {
-    app.it.col_drawer.refresh();
-  }).appendTo(it.comp_bottom);
   new Button({
-    left:"prev()", bottom: 200,height: 60,background: "red",
-      text: 'Reset'
+    centerX: true, bottom: 200,height: 60,
+      text: 'Test'
     }).onSelect(() => {
-      randomize_data();
-      console.log(app.a_days);
-      conf.save_config("days",app.a_days,true);
+      app.it.col_drawer.refresh();
     }).appendTo(it.comp_bottom);
+    new Button({
+      left:"prev()", bottom: 200,height: 60,background: "red",
+        text: 'Reset'
+      }).onSelect(() => {
+        randomize_data();
+        console.log(app.a_days);
+        conf.save_config("days",app.a_days,true);
+      }).appendTo(it.comp_bottom);
+
+
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
