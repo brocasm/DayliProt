@@ -472,7 +472,7 @@ class cl_interface {
 
     			  return cell;
     		  },
-    		  updateCell: (cell, index) =>  {            
+    		  updateCell: (cell, index) =>  {
             //console.log(o_all);
 
             cell.id = "cell_ " + index;
@@ -492,7 +492,7 @@ class cl_interface {
             let val_water = parseInt((this.app.a_days[id].water/this.app.max_water)*100);
             cell.apply({
               "#lbl_date": {text: txt,top: top},
-              "#lbl_prot": {text: this.app.a_days[id].prot},
+              "#lbl_prot": {text: Math.round(this.app.a_days[id].prot)},
               "#prg_prot": {selection: val_prot},
               "#lbl_water": {text: this.app.a_days[id].water},
               "#prg_water": {selection: val_water},
