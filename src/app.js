@@ -12,8 +12,8 @@ var conf = config.conf;
 var settings = require("./settings");
 settings = settings.settings;
 
-const s_version = "v0.4.1";
-const debug_mode = true;
+const s_version = "v0.4.2";
+const debug_mode = false;
 
 app.it = it;
 app.conf = conf;

@@ -472,8 +472,7 @@ class cl_interface {
 
     			  return cell;
     		  },
-    		  updateCell: (cell, index) =>  {
-            console.log(`UpdateCell ${index}`);
+    		  updateCell: (cell, index) =>  {            
             //console.log(o_all);
 
             cell.id = "cell_ " + index;
